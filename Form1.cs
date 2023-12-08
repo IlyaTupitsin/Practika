@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -113,128 +114,127 @@ namespace Учебная_практика
 
         private void button1_Click(object sender, EventArgs e)
         {
-
-            string selectedFileName = comboBox1.SelectedItem.ToString();
-            string filePath = Path.Combine("C:\\Users\\Пользователь\\Desktop\\фильмы", selectedFileName);
-
-            if (File.Exists(filePath))
+            if ((comboBox1.Text == "") && (comboBox2.Text == ""))
             {
-                string content = File.ReadAllText(filePath); // Чтение содержимого файла
-                string[] numbers = content.Split(','); // Разделение содержимого по запятым
-                int[] values = new int[numbers.Length];
+                MessageBox.Show("Выберите фильмы", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Process.Start(System.Windows.Forms.Application.ExecutablePath);
+                Close();
+            }
+            else
+            if (comboBox1.Text == "")
+            {
+                MessageBox.Show("Выберите первый фильм", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Process.Start(System.Windows.Forms.Application.ExecutablePath);
+                Close();
+            }
+            else
+            if (comboBox2.Text == "")
+            {
+                MessageBox.Show("Выберите второй фильм", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Process.Start(System.Windows.Forms.Application.ExecutablePath);
+                Close();
+            }
+            else
+            {
+                string selectedFileName = comboBox1.SelectedItem.ToString();
+                string filePath = Path.Combine("C:\\Users\\Пользователь\\Desktop\\фильмы", selectedFileName);
 
-                for (int i = 0; i < numbers.Length; i++)
+                if (File.Exists(filePath))
                 {
-                    if (int.TryParse(numbers[i], out int number))
-                    {
-                        values[i] = number; // Преобразование строк в числа
-                    }
-                }
-                string selectedFileName1 = comboBox2.SelectedItem.ToString();
-                string filePath1 = Path.Combine("C:\\Users\\Пользователь\\Desktop\\фильмы", selectedFileName1);
+                    string content = File.ReadAllText(filePath); // Чтение содержимого файла
+                    string[] numbers = content.Split(','); // Разделение содержимого по запятым
+                    int[] values = new int[numbers.Length];
 
-                if (File.Exists(filePath1))
-                {
-                    string content1 = File.ReadAllText(filePath1); // Чтение содержимого файла
-                    string[] numbers1 = content1.Split(','); // Разделение содержимого по запятым
-                    int[] values1 = new int[numbers1.Length];
-
-                    for (int i = 0; i < numbers1.Length; i++)
+                    for (int i = 0; i < numbers.Length; i++)
                     {
-                        if (int.TryParse(numbers1[i], out int number1))
+                        if (int.TryParse(numbers[i], out int number))
                         {
-                            values1[i] = number1; // Преобразование строк в числа
+                            values[i] = number; // Преобразование строк в числа
                         }
                     }
-                    DrawChart(values, values1); // Вызов метода для построения диаграммы
-                }
+                    string selectedFileName1 = comboBox2.SelectedItem.ToString();
+                    string filePath1 = Path.Combine("C:\\Users\\Пользователь\\Desktop\\фильмы", selectedFileName1);
 
+                    if (File.Exists(filePath1))
+                    {
+                        string content1 = File.ReadAllText(filePath1); // Чтение содержимого файла
+                        string[] numbers1 = content1.Split(','); // Разделение содержимого по запятым
+                        int[] values1 = new int[numbers1.Length];
+
+                        for (int i = 0; i < numbers1.Length; i++)
+                        {
+                            if (int.TryParse(numbers1[i], out int number1))
+                            {
+                                values1[i] = number1; // Преобразование строк в числа
+                            }
+                        }
+                        DrawChart(values, values1); // Вызов метода для построения диаграммы
+                    }
+
+                }
             }
         }
 
-        private void DrawChart(int[] values, int[] values1)
-        {
-            
-            pictureBox1.Refresh();
-
-            using (Graphics g = pictureBox1.CreateGraphics())
+            private void DrawChart(int[] values, int[] values1)
             {
-                int startX = 70;
-                int startY = pictureBox1.Height - 10;
-                int barWidth = 80;
-                int spacing = 50;
 
-               
-                using (Pen pen = new Pen(Color.Red))
+                pictureBox1.Refresh();
+
+                using (Graphics g = pictureBox1.CreateGraphics())
                 {
-                    for (int i = 0; i < values.Length; i++)
-                    {
-                        int barHeight = values[i];
-                        int x = startX + (barWidth + spacing) * i;
-                        int y = startY - barHeight;
+                    int startX = 70;
+                    int startY = pictureBox1.Height - 10;
+                    int barWidth = 80;
+                    int spacing = 50;
 
-                        
-                        g.DrawRectangle(pen, x, y, barWidth, barHeight);
+
+                    using (Pen pen = new Pen(Color.Red))
+                    {
+                        for (int i = 0; i < values.Length; i++)
+                        {
+                            int barHeight = values[i];
+                            int x = startX + (barWidth + spacing) * i;
+                            int y = startY - barHeight;
+
+
+                            g.DrawRectangle(pen, x, y, barWidth, barHeight);
+                        }
+                    }
+
+
+                    using (Pen pen1 = new Pen(Color.Blue))
+                    {
+                        for (int i = 0; i < values1.Length; i++)
+                        {
+                            int barHeight = values1[i];
+                            int x = startX + (barWidth + spacing) * i;
+                            int y = startY - barHeight;
+
+
+                            g.DrawRectangle(pen1, x, y, barWidth, barHeight);
+                        }
                     }
                 }
 
-                
-                using (Pen pen1 = new Pen(Color.Blue))
-                {
-                    for (int i = 0; i < values1.Length; i++)
-                    {
-                        int barHeight = values1[i];
-                        int x = startX + (barWidth + spacing) * i;
-                        int y = startY - barHeight;
 
-                        
-                        g.DrawRectangle(pen1, x, y, barWidth, barHeight);
-                    }
-                }
+                label1.ForeColor = Color.Red;
+                label2.ForeColor = Color.Blue;
+                label1.Text = "первый фильм";
+                label2.Text = "второй фильм";
             }
 
-            
-            label1.ForeColor = Color.Red;
-            label2.ForeColor = Color.Blue;
-            label1.Text = "первый фильм";
-            label2.Text = "второй фильм";
-        }
 
-
+        
         private void button2_Click(object sender, EventArgs e)
         {
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
-                saveFileDialog.Filter = "JPEG Image|*.jpg|PNG Image|*.png|BMP Image|*.bmp";
-                saveFileDialog.Title = "Save Chart As";
-                saveFileDialog.ShowDialog();
-
-               
-                if (saveFileDialog.FileName != "")
+                saveFileDialog.Filter = "JPEG|*.jpg|Bitmap|*.bmp|PNG|*.png";
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    
                     Bitmap bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-                    pictureBox1.DrawToBitmap(bmp, pictureBox1.ClientRectangle);
-
-                   
-                    string ext = Path.GetExtension(saveFileDialog.FileName).ToLower();
-
-                    switch (ext)
-                    {
-                        case ".jpg":
-                            bmp.Save(saveFileDialog.FileName, ImageFormat.Jpeg);
-                            break;
-                        case ".bmp":
-                            bmp.Save(saveFileDialog.FileName, ImageFormat.Bmp);
-                            break;
-                        case ".png":
-                            bmp.Save(saveFileDialog.FileName, ImageFormat.Png);
-                            break;
-                        default:
-                           
-                            MessageBox.Show("Unsupported file format", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            break;
-                    }
+                    pictureBox1.DrawToBitmap(bmp, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
+                    bmp.Save(saveFileDialog.FileName);
                 }
             }
         }
