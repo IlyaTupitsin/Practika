@@ -175,18 +175,64 @@ namespace Учебная_практика
             }
         }
 
-            private void DrawChart(int[] values, int[] values1)
+        private void DrawChart(int[] values, int[] values1)
+        {
+
+            pictureBox1.Refresh();
+
+            using (Graphics g = pictureBox1.CreateGraphics())
             {
+                int startX = 70;
+                int startY = pictureBox1.Height - 10;
+                int barWidth = 80;
+                int spacing = 50;
 
-                pictureBox1.Refresh();
 
-                using (Graphics g = pictureBox1.CreateGraphics())
+                using (Pen pen = new Pen(Color.Red))
+                {
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        int barHeight = values[i];
+                        int x = startX + (barWidth + spacing) * i;
+                        int y = startY - barHeight;
+
+
+                        g.DrawRectangle(pen, x, y, barWidth, barHeight);
+                    }
+                }
+
+
+                using (Pen pen1 = new Pen(Color.Blue))
+                {
+                    for (int i = 0; i < values1.Length; i++)
+                    {
+                        int barHeight = values1[i];
+                        int x = startX + (barWidth + spacing) * i;
+                        int y = startY - barHeight;
+
+
+                        g.DrawRectangle(pen1, x, y, barWidth, barHeight);
+                    }
+                }
+            }
+
+
+            label1.ForeColor = Color.Red;
+            label2.ForeColor = Color.Blue;
+            label1.Text = "первый фильм";
+            label2.Text = "второй фильм";
+        }
+
+        private void SaveChartToFile(int[] values, int[] values1, string saveFilePath)
+        {
+            using (Bitmap bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
                 {
                     int startX = 70;
                     int startY = pictureBox1.Height - 10;
                     int barWidth = 80;
                     int spacing = 50;
-
 
                     using (Pen pen = new Pen(Color.Red))
                     {
@@ -195,12 +241,9 @@ namespace Учебная_практика
                             int barHeight = values[i];
                             int x = startX + (barWidth + spacing) * i;
                             int y = startY - barHeight;
-
-
                             g.DrawRectangle(pen, x, y, barWidth, barHeight);
                         }
                     }
-
 
                     using (Pen pen1 = new Pen(Color.Blue))
                     {
@@ -209,35 +252,85 @@ namespace Учебная_практика
                             int barHeight = values1[i];
                             int x = startX + (barWidth + spacing) * i;
                             int y = startY - barHeight;
-
-
                             g.DrawRectangle(pen1, x, y, barWidth, barHeight);
                         }
                     }
                 }
 
-
-                label1.ForeColor = Color.Red;
-                label2.ForeColor = Color.Blue;
-                label1.Text = "первый фильм";
-                label2.Text = "второй фильм";
+                bmp.Save(saveFilePath, ImageFormat.Png);
             }
+        }
 
-
-        
         private void button2_Click(object sender, EventArgs e)
         {
-            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            if ((comboBox1.Text == "") && (comboBox2.Text == ""))
             {
-                saveFileDialog.Filter = "JPEG|*.jpg|Bitmap|*.bmp|PNG|*.png";
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                MessageBox.Show("Выберите фильмы", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Process.Start(System.Windows.Forms.Application.ExecutablePath);
+                Close();
+            }
+            else
+                 if (comboBox1.Text == "")
+            {
+                MessageBox.Show("Выберите первый фильм", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Process.Start(System.Windows.Forms.Application.ExecutablePath);
+                Close();
+            }
+            else
+                 if (comboBox2.Text == "")
+            {
+                MessageBox.Show("Выберите второй фильм", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Process.Start(System.Windows.Forms.Application.ExecutablePath);
+                Close();
+            }
+            else
+            {
+                string selectedFileName = comboBox1.SelectedItem.ToString();
+                string filePath = Path.Combine("C:\\Users\\Пользователь\\Desktop\\фильмы", selectedFileName);
+
+                if (File.Exists(filePath))
                 {
-                    Bitmap bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-                    pictureBox1.DrawToBitmap(bmp, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
-                    bmp.Save(saveFileDialog.FileName);
+                    string content = File.ReadAllText(filePath); // Чтение содержимого файла
+                    string[] numbers = content.Split(','); // Разделение содержимого по запятым
+                    int[] values = new int[numbers.Length];
+
+                    for (int i = 0; i < numbers.Length; i++)
+                    {
+                        if (int.TryParse(numbers[i], out int number))
+                        {
+                            values[i] = number; // Преобразование строк в числа
+                        }
+                    }
+                    string selectedFileName1 = comboBox2.SelectedItem.ToString();
+                    string filePath1 = Path.Combine("C:\\Users\\Пользователь\\Desktop\\фильмы", selectedFileName1);
+
+                    if (File.Exists(filePath1))
+                    {
+                        string content1 = File.ReadAllText(filePath1); // Чтение содержимого файла
+                        string[] numbers1 = content1.Split(','); // Разделение содержимого по запятым
+                        int[] values1 = new int[numbers1.Length];
+
+                        for (int i = 0; i < numbers1.Length; i++)
+                        {
+                            if (int.TryParse(numbers1[i], out int number1))
+                            {
+                                values1[i] = number1; // Преобразование строк в числа
+                            }
+                        }
+                        using (SaveFileDialog saveDialog = new SaveFileDialog())
+                        {
+                            saveDialog.Filter = "PNG Files (*.png)|*.png|All files (*.*)|*.*";
+
+                            if (saveDialog.ShowDialog() == DialogResult.OK)
+                            {
+                                string savePath = saveDialog.FileName;
+                                SaveChartToFile(values, values1, savePath); // Вызов метода для сохранения графика в файл
+                            }
+                        }
+
+                    }
                 }
             }
         }
     }
 }
-
